@@ -1,12 +1,10 @@
-ARG PYTHON_VERSION=3.6
-FROM godatadriven/miniconda:${PYTHON_VERSION}
+FROM openjdk:8
 
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV SLUGIFY_USES_TEXT_UNIDECODE yes
 
 ARG BUILD_DATE
-ARG AIRFLOW_VERSION
-ARG AIRFLOW_EXTRAS=async,celery,crypto,jdbc,hdfs,hive,azure,gcp_api,emr,password,postgres,slack,ssh,kubernetes
+ARG AIRFLOW_VERSION=1.10.3
+ARG AIRFLOW_EXTRAS=async,crypto,jdbc,postgres,ssh,kubernetes
 
 LABEL org.label-schema.name="Apache Airflow ${AIRFLOW_VERSION}" \
       org.label-schema.build-date=$BUILD_DATE \
@@ -14,27 +12,22 @@ LABEL org.label-schema.name="Apache Airflow ${AIRFLOW_VERSION}" \
 
 RUN set -x\
     && apt-get update \
-    && apt-get install -y gcc g++ netcat git ca-certificates libpq-dev curl --no-install-recommends \
-    && if [ "$AIRFLOW_VERSION" = "1.8.2" ]; then\
-           conda install -y pip==9;\
-       fi\
-    && if [ "$AIRFLOW_VERSION" = "master" ]; then\
-           pip install --no-cache-dir git+https://github.com/apache/airflow/#egg=apache-airflow[$AIRFLOW_EXTRAS];\
-           curl -sL https://deb.nodesource.com/setup_8.x | bash - ;\
-           apt-get install -y nodejs ;\
-           cd /opt/miniconda3/lib/python3.6/site-packages/airflow/www/;\
-           npm install;\
-           npm run prod;\
-           cd /;\
-           apt-get remove -y --purge nodejs ;\
-       elif [ -n "$AIRFLOW_VERSION" ]; then\
-           pip install --no-cache-dir apache-airflow[$AIRFLOW_EXTRAS]==$AIRFLOW_VERSION;\
-       else\
-           pip install --no-cache-dir apache-airflow[$AIRFLOW_EXTRAS];\
-       fi\
+    && apt-get install -y python3-pip python3-dev gcc g++ netcat git ca-certificates libpq-dev curl --no-install-recommends \
+    && pip3 install setuptools \
+    && pip3 install --no-cache-dir apache-airflow[$AIRFLOW_EXTRAS]==$AIRFLOW_VERSION werkzeug>=0.15.0 \
     && apt-get remove -y --purge gcc g++ git curl \
     && apt autoremove -y \
     && apt-get clean -y
+
+ARG SPARK_VERSION=2.4.3
+
+ENV SPARK_HOME /usr/spark
+ENV PATH="/usr/spark/bin:${PATH}"
+
+RUN wget -q "http://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop2.7.tgz" && \
+    tar xzf "spark-${SPARK_VERSION}-bin-hadoop2.7.tgz" && \
+    rm "spark-${SPARK_VERSION}-bin-hadoop2.7.tgz" && \
+    mv "spark-${SPARK_VERSION}-bin-hadoop2.7" /usr/spark
 
 COPY entrypoint.sh /scripts/
 RUN chmod +x /scripts/entrypoint.sh
