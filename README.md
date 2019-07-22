@@ -6,11 +6,11 @@ Airflow docker container based on Python 3.5.
 By default airflow --help is run:
 
 ```
-docker run godatadriven/airflow
+docker run godatadriven/airspark
 ```
 
 To run the webserver, try our `upgradedb_webserver` command which first runs upgradedb (inits and upgrades the airflow database) before it starts the webserver
 
 ```
-docker run godatadriven/airflow upgradedb_webserver
+docker run godatadriven/airspark upgradedb_webserver
 ```
