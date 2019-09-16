@@ -15,7 +15,7 @@ RUN set -x\
     && apt-get -y purge python2.7-minimal \
     && apt-get install -y python3-pip python3-dev gcc g++ netcat git ca-certificates libpq-dev curl --no-install-recommends \
     && pip3 install setuptools \
-    && pip3 install --no-cache-dir apache-airflow[$AIRFLOW_EXTRAS]==$AIRFLOW_VERSION werkzeug>=0.15.0 \
+    && pip3 install --no-cache-dir apache-airflow[$AIRFLOW_EXTRAS]==$AIRFLOW_VERSION werkzeug>=0.15.0 "marshmallow-sqlalchemy<=0.19.0" \
     && apt-get remove -y --purge gcc g++ git curl \
     && apt autoremove -y \
     && apt-get clean -y \
