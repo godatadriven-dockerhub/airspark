@@ -3,7 +3,7 @@ FROM openjdk:8
 ENV PYTHONDONTWRITEBYTECODE 1
 
 ARG BUILD_DATE
-ARG AIRFLOW_VERSION=1.10.3
+ARG AIRFLOW_VERSION=1.10.5
 ARG AIRFLOW_EXTRAS=async,crypto,jdbc,postgres,ssh,kubernetes
 
 LABEL org.label-schema.name="Apache Airflow ${AIRFLOW_VERSION}" \
